@@ -1,0 +1,21 @@
+graph TD
+    subgraph Data Sources
+        Producer[Synthetic Producer] -->|JSON| Kafka{Kafka}
+    end
+
+    subgraph Streaming Layer
+        Kafka -->|transactions| Scorer[Scorer Service]
+        Scorer -->|alerts| Kafka
+        Scorer -->|metrics| Prometheus
+    end
+
+    subgraph Batch & Training Layer
+        Airflow[Airflow] -->|Trigger| Training[Training Job]
+        Training -->|Load Data| Kafka
+        Training -->|Log/Register| MLflow[MLflow]
+        MLflow -->|Load Model| Scorer
+    end
+
+    subgraph Monitoring
+        Prometheus --> Grafana[Grafana]
+    end
